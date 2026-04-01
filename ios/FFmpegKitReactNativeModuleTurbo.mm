@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Taner Sener
+ * Copyright (c) 2026
  *
  * This file is part of FFmpegKit.
  *
@@ -17,15 +17,21 @@
  *  along with FFmpegKit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <Foundation/Foundation.h>
-#import <ffmpegkit/FFmpegKitConfig.h>
-#import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
-
 #ifdef RCT_NEW_ARCH_ENABLED
+
+#import "FFmpegKitReactNativeModule.h"
 #import <FFmpegKitReactNativeSpec/FFmpegKitReactNativeSpec.h>
-@interface FFmpegKitReactNativeModule : RCTEventEmitter <RCTBridgeModule, NativeFFmpegKitReactNativeModuleSpec>
-#else
-@interface FFmpegKitReactNativeModule : RCTEventEmitter <RCTBridgeModule>
-#endif
+
+#import <memory>
+
+@implementation FFmpegKitReactNativeModule (TurboModule)
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+  return std::make_shared<facebook::react::NativeFFmpegKitReactNativeModuleSpecJSI>(params);
+}
+
 @end
+
+#endif

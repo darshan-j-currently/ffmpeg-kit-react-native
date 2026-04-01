@@ -11,6 +11,21 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def isNewArchitectureEnabled() {
+  return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+def shouldEnableTurboModule = false
+
+if (isNewArchitectureEnabled()) {
+  try {
+    apply plugin: 'com.facebook.react'
+    shouldEnableTurboModule = true
+  } catch (Exception exception) {
+    logger.warn(":${project.name}: com.facebook.react plugin not found, falling back to legacy module implementation.")
+  }
+}
+
 static def safePackageName(String packageName) {
   packageName.replace("-lts", "")
 }
@@ -25,6 +40,14 @@ def safeExtGet(String prop, String fallback) {
   rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+if (shouldEnableTurboModule) {
+  react {
+    jsRootDir = file("../src")
+    libraryName = "FFmpegKitReactNativeModule"
+    codegenJavaPackageName = "com.arthenica.ffmpegkit.reactnative"
+  }
+}
+
 android {
   if (project.android.hasProperty("namespace")) {
     namespace 'com.arthenica.ffmpegkit.reactnative'
@@ -37,6 +60,7 @@ android {
     targetSdkVersion 33
     versionCode 602
     versionName "6.0.2"
+    buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", shouldEnableTurboModule.toString())
   }
 
   buildTypes {
@@ -50,6 +74,18 @@ android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_11
     targetCompatibility JavaVersion.VERSION_11
+  }
+
+  buildFeatures {
+    buildConfig true
+  }
+
+  sourceSets {
+    main {
+      if (shouldEnableTurboModule) {
+        java.srcDirs += ['src/newarch/java']
+      }
+    }
   }
 }
 
@@ -124,6 +160,10 @@ repositories {
 }
 
 dependencies {
-  api 'com.facebook.react:react-native:+'
+  if (shouldEnableTurboModule) {
+    api 'com.facebook.react:react-android'
+  } else {
+    api 'com.facebook.react:react-native:+'
+  }
   implementation 'com.arthenica:ffmpeg-kit-' + safePackageName(safeExtGet('ffmpegKitPackage', 'https')) + ':' + safePackageVersion(safeExtGet('ffmpegKitPackage', 'https'))
 }

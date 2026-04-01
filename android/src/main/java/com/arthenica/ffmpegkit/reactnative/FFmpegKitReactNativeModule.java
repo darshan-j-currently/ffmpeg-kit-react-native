@@ -140,7 +140,7 @@ public class FFmpegKitReactNativeModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void removeListeners(Integer count) {
+  public void removeListeners(Double count) {
   }
 
   @NonNull
@@ -331,6 +331,11 @@ public class FFmpegKitReactNativeModule extends ReactContextBaseJavaModule {
     } else {
       promise.reject("INVALID_SESSION", "Invalid session id.");
     }
+  }
+
+  @ReactMethod
+  public void abstractSessionThereAreAsynchronousMessagesInTransmit(final Double sessionId, final Promise promise) {
+    thereAreAsynchronousMessagesInTransmit(sessionId, promise);
   }
 
   // ArchDetect

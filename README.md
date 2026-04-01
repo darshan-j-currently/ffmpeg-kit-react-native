@@ -4,6 +4,7 @@
 - Includes both `FFmpeg` and `FFprobe`
 - Supports
   - Both `Android` and `iOS`
+  - React Native New Architecture (`TurboModule` + `Codegen`) on both Android and iOS
   - FFmpeg `v6.0`
   - `arm-v7a`, `arm-v7a-neon`, `arm64-v8a`, `x86` and `x86_64` architectures on Android
   - `Android API Level 24` or later
@@ -190,6 +191,11 @@ the package name you are using.
 same source code but is built with different settings (Architectures, API Level, iOS Min SDK, etc.). Refer to the
 [LTS Releases](https://github.com/arthenica/ffmpeg-kit/wiki/LTS-Releases) wiki page to see how they differ from each
 other.
+
+#### 2.5 React Native New Architecture
+
+When your app enables React Native New Architecture (`newArchEnabled=true`), this library registers a TurboModule
+implementation generated via Codegen on both Android and iOS.
 
 ### 3. Using
 

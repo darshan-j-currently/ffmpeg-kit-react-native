@@ -20,21 +20,57 @@
 package com.arthenica.ffmpegkit.reactnative;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.facebook.react.ReactPackage;
+import com.facebook.react.BaseReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.module.model.ReactModuleInfo;
+import com.facebook.react.module.model.ReactModuleInfoProvider;
 import com.facebook.react.uimanager.ViewManager;
 
+import java.lang.reflect.Constructor;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class FFmpegKitReactNativePackage implements ReactPackage {
+public class FFmpegKitReactNativePackage extends BaseReactPackage {
+
+  private static final String MODULE_NAME = "FFmpegKitReactNativeModule";
+  private static final String TURBO_MODULE_CLASS_NAME =
+      "com.arthenica.ffmpegkit.reactnative.FFmpegKitReactNativeTurboModule";
+
+  @Nullable
+  @Override
+  public NativeModule getModule(@NonNull String name, @NonNull ReactApplicationContext reactContext) {
+    if (!MODULE_NAME.equals(name)) {
+      return null;
+    }
+
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      return createTurboModule(reactContext);
+    }
+
+    return new FFmpegKitReactNativeModule(reactContext);
+  }
 
   @NonNull
   @Override
-  public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    return Collections.singletonList(new FFmpegKitReactNativeModule(reactContext));
+  public ReactModuleInfoProvider getReactModuleInfoProvider() {
+    return () -> {
+      final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
+      moduleInfos.put(
+          MODULE_NAME,
+          new ReactModuleInfo(
+              MODULE_NAME,
+              MODULE_NAME,
+              false,
+              false,
+              false,
+              BuildConfig.IS_NEW_ARCHITECTURE_ENABLED));
+      return moduleInfos;
+    };
   }
 
   @NonNull
@@ -43,4 +79,18 @@ public class FFmpegKitReactNativePackage implements ReactPackage {
     return Collections.emptyList();
   }
 
+  @NonNull
+  private NativeModule createTurboModule(@NonNull ReactApplicationContext reactContext) {
+    try {
+      final Class<?> turboModuleClass = Class.forName(TURBO_MODULE_CLASS_NAME);
+      final Constructor<?> constructor = turboModuleClass.getConstructor(ReactApplicationContext.class);
+      final Object module = constructor.newInstance(reactContext);
+      if (module instanceof NativeModule) {
+        return (NativeModule) module;
+      }
+      throw new IllegalStateException("Turbo module is not a NativeModule instance");
+    } catch (final Exception exception) {
+      throw new RuntimeException("Failed to create FFmpegKitReactNative turbo module", exception);
+    }
+  }
 }

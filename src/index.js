@@ -1,6 +1,14 @@
-import {NativeEventEmitter, NativeModules} from 'react-native';
+import {NativeEventEmitter, NativeModules, TurboModuleRegistry} from 'react-native';
 
-const {FFmpegKitReactNativeModule} = NativeModules;
+const FFmpegKitReactNativeModule =
+  TurboModuleRegistry.get('FFmpegKitReactNativeModule') ??
+  NativeModules.FFmpegKitReactNativeModule;
+
+if (FFmpegKitReactNativeModule == null) {
+  throw new Error(
+    'FFmpegKitReactNativeModule is not available. Make sure ffmpeg-kit-react-native is installed, linked, and rebuilt for this app.'
+  );
+}
 
 const ffmpegSessionCompleteCallbackMap = new Map()
 const ffprobeSessionCompleteCallbackMap = new Map()
@@ -12,6 +20,14 @@ const logRedirectionStrategyMap = new Map()
 const eventLogCallbackEvent = "FFmpegKitLogCallbackEvent";
 const eventStatisticsCallbackEvent = "FFmpegKitStatisticsCallbackEvent";
 const eventCompleteCallbackEvent = "FFmpegKitCompleteCallbackEvent";
+
+const abstractSessionThereAreAsynchronousMessagesInTransmit = (sessionId) => {
+  if (FFmpegKitReactNativeModule.abstractSessionThereAreAsynchronousMessagesInTransmit != null) {
+    return FFmpegKitReactNativeModule.abstractSessionThereAreAsynchronousMessagesInTransmit(sessionId);
+  }
+
+  return FFmpegKitReactNativeModule.thereAreAsynchronousMessagesInTransmit(sessionId);
+};
 
 export const LogRedirectionStrategy = {
   ALWAYS_PRINT_LOGS: 0,
@@ -631,7 +647,7 @@ export class AbstractSession extends Session {
    * otherwise
    */
   thereAreAsynchronousMessagesInTransmit() {
-    return FFmpegKitReactNativeModule.abstractSessionThereAreAsynchronousMessagesInTransmit(this.getSessionId());
+    return abstractSessionThereAreAsynchronousMessagesInTransmit(this.getSessionId());
   }
 
   /**
@@ -1546,7 +1562,7 @@ export class FFmpegKitConfig {
   static async selectDocumentForRead(type, extraTypes) {
     await FFmpegKitConfig.init();
 
-    return FFmpegKitReactNativeModule.selectDocument(false, undefined, type, extraTypes);
+    return FFmpegKitReactNativeModule.selectDocument(false, null, type ?? null, extraTypes ?? null);
   }
 
   /**
@@ -1564,7 +1580,7 @@ export class FFmpegKitConfig {
   static async selectDocumentForWrite(title, type, extraTypes) {
     await FFmpegKitConfig.init();
 
-    return FFmpegKitReactNativeModule.selectDocument(true, title, type, extraTypes);
+    return FFmpegKitReactNativeModule.selectDocument(true, title ?? null, type ?? null, extraTypes ?? null);
   }
 
 }

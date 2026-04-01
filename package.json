@@ -6,6 +6,14 @@
   "types": "src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
+  "codegenConfig": {
+    "name": "FFmpegKitReactNativeSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.arthenica.ffmpegkit.reactnative"
+    }
+  },
   "scripts": {
     "test": "jest",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
