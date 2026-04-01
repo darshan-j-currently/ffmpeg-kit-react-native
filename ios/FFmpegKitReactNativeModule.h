@@ -22,10 +22,5 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-#ifdef RCT_NEW_ARCH_ENABLED
-#import <FFmpegKitReactNativeSpec/FFmpegKitReactNativeSpec.h>
-@interface FFmpegKitReactNativeModule : RCTEventEmitter <RCTBridgeModule, NativeFFmpegKitReactNativeModuleSpec>
-#else
 @interface FFmpegKitReactNativeModule : RCTEventEmitter <RCTBridgeModule>
-#endif
 @end

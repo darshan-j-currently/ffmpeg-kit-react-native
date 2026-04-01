@@ -24,6 +24,9 @@
 
 #import <memory>
 
+@interface FFmpegKitReactNativeModule () <NativeFFmpegKitReactNativeModuleSpec>
+@end
+
 @implementation FFmpegKitReactNativeModule (TurboModule)
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
